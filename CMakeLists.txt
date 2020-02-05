@@ -12,6 +12,7 @@ include_directories(libde265)
 include_directories(.)
 
 set (libde265_sources
+  hw.c
   alloc_pool.cc
   bitstream.cc
   cabac.cc
@@ -94,6 +95,6 @@ if(SUPPORTS_SSE4_1)
   add_subdirectory (x86)
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
+add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
 find_package(Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
