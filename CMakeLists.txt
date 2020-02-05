@@ -11,6 +11,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include_directories(libde265)
 include_directories(.)
 
+include(CheckIncludeFile)
+
+check_include_file("malloc.h" HAVE_MALLOC_H)
+
+include(CheckFunctionExists)
+check_function_exists(posix_memalign HAVE_POSIX_MEMALIGN)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+include_directories(${PROJECT_BINARY_DIR})
+
 set (libde265_sources
   hw.c
   alloc_pool.cc

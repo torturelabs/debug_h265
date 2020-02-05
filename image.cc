@@ -21,13 +21,12 @@
 #include "image.h"
 #include "decctx.h"
 
-#include <malloc.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
 #include <limits>
+#include "config.h"
 
 
 #ifdef HAVE_MALLOC_H
