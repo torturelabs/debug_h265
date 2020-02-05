@@ -21,6 +21,9 @@ check_function_exists(posix_memalign HAVE_POSIX_MEMALIGN)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories(${PROJECT_BINARY_DIR})
 
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
 set (libde265_sources
   hw.c
   alloc_pool.cc
@@ -107,4 +110,4 @@ endif()
 
 add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
 find_package(Threads)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${SDL2_LIBRARIES})

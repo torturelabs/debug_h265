@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+//#define HAS_SDL
 #ifdef HAS_SDL
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #endif
 
 #include <libde265/de265.h>
@@ -24,7 +25,7 @@ SDL_Renderer *renderer;
 SDL_Texture *texture;
 #endif
 
-char *h265file = "/home/dima/var.h265";
+char *h265file = "/Users/dmitryilyin/var.h265";
 int width = 0, height = 0;
 struct timeval start, stv, etv;
 int alcnt, decnt, allocated, maxalloc;
