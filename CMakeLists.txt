@@ -21,7 +21,10 @@ check_function_exists(posix_memalign HAVE_POSIX_MEMALIGN)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories(${PROJECT_BINARY_DIR})
 
-find_package(SDL2 REQUIRED)
+find_package(SDL2)
+if(SDL2_FOUND)
+    add_definitions(-DHAS_SDL)
+endif(SDL2_FOUND)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 set (libde265_sources

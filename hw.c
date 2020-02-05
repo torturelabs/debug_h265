@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-//#define HAS_SDL
 #ifdef HAS_SDL
 #include <SDL.h>
 #endif
