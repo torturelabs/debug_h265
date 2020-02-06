@@ -24,7 +24,7 @@ SDL_Renderer *renderer;
 SDL_Texture *texture;
 #endif
 
-char *h265file = "/Users/dmitryilyin/var.h265";
+char *h265file = "var.h265";
 int width = 0, height = 0;
 struct timeval start, stv, etv;
 int alcnt, decnt, allocated, maxalloc;
