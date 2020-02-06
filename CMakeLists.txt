@@ -122,7 +122,7 @@ if(PERF_TRACE)
 endif()
 
 if(EMSCRIPTEN)
-    target_compile_options(${PROJECT_NAME} PUBLIC -s ASSERTIONS=1)
+    target_link_options(${PROJECT_NAME} PUBLIC -s ASSERTIONS=1)
 
     set(H265_FILENAME var.h265)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${H265_FILENAME} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
