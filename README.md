@@ -4,6 +4,12 @@
 git clone https://github.com/torturelabs/debug_h265 --recursive
 ```
 
+## Download sample H.265 bytestream
+
+```
+wget https://camera.torturelabs.com/var.h265
+```
+
 ## Build
 
 Prepare configuration, native code:
@@ -23,4 +29,11 @@ Make build (in all cases)
 
 ```
 cmake --build build -- VERBOSE=1
+```
+## Run
+
+WASM version with standalone V8 installed:
+
+```
+cd build ; d8 debug_h265.js
 ```
