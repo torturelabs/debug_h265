@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
 #include <SDL.h>
 #endif
 
@@ -18,7 +18,7 @@ void check_err_de265(de265_error err) {
   exit(EXIT_FAILURE);
 }
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
 SDL_Window *screen;
 SDL_Renderer *renderer;
 SDL_Texture *texture;
@@ -132,7 +132,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)) {
     fprintf(stderr, "Could not initialize SDL - %s\n", SDL_GetError());
     return 1;
@@ -192,7 +192,7 @@ int main() {
           // fwrite(y, 1, height * out_stride, fd);
           // fclose(fd);
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
           // Make a screen to put our video
           screen = SDL_CreateWindow("Video", SDL_WINDOWPOS_UNDEFINED,
                                     SDL_WINDOWPOS_UNDEFINED, width, height,
@@ -236,7 +236,7 @@ int main() {
                    (double)(etv.tv_usec - stv.tv_usec) / 1000000);
         de265_release_next_picture(ctx);
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
         SDL_UpdateYUVTexture(texture, NULL, y, width, v, width / 2, u,
                              width / 2);
         SDL_RenderClear(renderer);
@@ -260,7 +260,7 @@ int main() {
         printf("No picture\n");
       }
 
-#ifdef HAS_SDL
+#ifdef HAVE_SDL2
       SDL_Event event;
 
       SDL_PollEvent(&event);
