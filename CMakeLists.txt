@@ -38,7 +38,6 @@ set (libde265_sources
   deblock.cc
   decctx.cc
   dpb.cc
-  #  en265.cc
   fallback-dct.cc
   fallback-motion.cc
   fallback.cc
@@ -104,8 +103,6 @@ set (libde265_headers
 
 add_definitions(-DLIBDE265_EXPORTS)
 
-#add_subdirectory (encoder)
-
 if(SUPPORTS_SSE4_1)
   add_definitions(-DHAVE_SSE4_1)
   add_subdirectory (x86)
@@ -114,3 +111,7 @@ endif()
 add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
 find_package(Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${SDL2_LIBRARIES})
+
+if(PERF_TRACE)
+    target_compile_options(${PROJECT_NAME} PUBLIC "-fno-omit-frame-pointer")
+endif()
