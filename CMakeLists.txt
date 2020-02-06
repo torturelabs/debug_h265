@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 include_directories(libde265)
 include_directories(.)
 
@@ -132,6 +140,12 @@ if(EMSCRIPTEN)
         target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-s PTHREAD_POOL_SIZE=2")
         target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s USE_PTHREADS=1")
         target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s PTHREAD_POOL_SIZE=2")
+    endif()
+
+    option(WASM_SIMD "Turn on SIMD support for WASM" OFF)
+    if(WASM_SIMD)
+        add_definitions(-DWASM_SIMD)
+        target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-msimd128")
     endif()
 
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s ASSERTIONS=1")
