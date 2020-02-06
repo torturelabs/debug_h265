@@ -21,11 +21,15 @@ check_function_exists(posix_memalign HAVE_POSIX_MEMALIGN)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories(${PROJECT_BINARY_DIR})
 
-find_package(SDL2)
-if(SDL2_FOUND)
-    add_definitions(-DHAS_SDL)
-endif(SDL2_FOUND)
-include_directories(${SDL2_INCLUDE_DIRS})
+if(CMAKE_C_COMPILER MATCHES ".*emcc")
+    set(EMSCRIPTEN 1)
+endif()
+
+if(NOT EMSCRIPTEN)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
+    find_package(SDL2 REQUIRED)
+    list(APPEND TARGET_LIBS SDL2::Main)
+endif()
 
 set (libde265_sources
   hw.c
@@ -110,7 +114,7 @@ endif()
 
 add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
 find_package(Threads)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${TARGET_LIBS})
 
 if(PERF_TRACE)
     target_compile_options(${PROJECT_NAME} PUBLIC "-fno-omit-frame-pointer")

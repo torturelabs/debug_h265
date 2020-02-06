@@ -1,3 +1,9 @@
+## Checkout
+
+```
+git clone https://github.com/torturelabs/debug_h265 --recursive
+```
+
 ## Build
 
 Prepare configuration, native code:
