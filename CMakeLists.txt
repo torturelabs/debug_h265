@@ -122,6 +122,11 @@ if(PERF_TRACE)
 endif()
 
 if(EMSCRIPTEN)
+    option(BROWSER_RUN "Compiles and run in browser" OFF)
+    if(BROWSER_RUN)
+        set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    endif()
+
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s ASSERTIONS=1")
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s TOTAL_MEMORY=1073741824")
 
