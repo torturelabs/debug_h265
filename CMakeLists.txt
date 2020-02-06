@@ -122,7 +122,8 @@ if(PERF_TRACE)
 endif()
 
 if(EMSCRIPTEN)
-    target_link_options(${PROJECT_NAME} PUBLIC -s ASSERTIONS=1)
+    target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s ASSERTIONS=1")
+    target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s TOTAL_MEMORY=1073741824")
 
     set(H265_FILENAME var.h265)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${H265_FILENAME} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
