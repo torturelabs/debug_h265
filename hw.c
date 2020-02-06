@@ -123,8 +123,10 @@ int main() {
 
   // The decoder uses background threads to do the actual decoding. Before using
   // the decoder, we have to start these background threads with
+#ifdef THREADS_SUPPORT
   err = de265_start_worker_threads(ctx, number_of_threads);
   check_err_de265(err);
+#endif
 
   FILE *f = fopen(h265file, "rb");
   if (f == NULL) {

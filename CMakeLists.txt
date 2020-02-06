@@ -114,8 +114,6 @@ if(SUPPORTS_SSE4_1)
 endif()
 
 add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
-find_package(Threads)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${TARGET_LIBS})
 
 if(PERF_TRACE)
     target_compile_options(${PROJECT_NAME} PUBLIC "-fno-omit-frame-pointer")
@@ -127,6 +125,11 @@ if(EMSCRIPTEN)
         set(CMAKE_EXECUTABLE_SUFFIX ".html")
     endif()
 
+    option(WASM_THREADS "Turn on threads support for WASM" OFF)
+    if(WASM_THREADS)
+        add_definitions(-DTHREADS_SUPPORT)
+    endif()
+
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s ASSERTIONS=1")
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s TOTAL_MEMORY=1073741824")
 
@@ -134,4 +137,8 @@ if(EMSCRIPTEN)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${H265_FILENAME} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
     target_link_options(${PROJECT_NAME} PUBLIC --embed-file
         ${CMAKE_CURRENT_BINARY_DIR}/${H265_FILENAME})
+else()
+    find_package(Threads)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${TARGET_LIBS})
+    add_definitions(-DTHREADS_SUPPORT)
 endif()
