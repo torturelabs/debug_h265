@@ -34,10 +34,13 @@ if(CMAKE_C_COMPILER MATCHES ".*emcc")
 endif()
 
 if(NOT EMSCRIPTEN)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
-    find_package(SDL2 REQUIRED)
-    add_definitions(-DHAVE_SDL2)
-    list(APPEND TARGET_LIBS SDL2::Main)
+    option(WITH_SDL "Turn on SDL support for native code" ON)
+    if(WITH_SDL)
+        list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
+        find_package(SDL2 REQUIRED)
+        add_definitions(-DHAVE_SDL2)
+        list(APPEND TARGET_LIBS SDL2::Main)
+    endif()
 endif()
 
 set (libde265_sources
