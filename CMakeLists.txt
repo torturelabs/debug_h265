@@ -168,3 +168,10 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${TARGET_LIBS})
     add_definitions(-DTHREADS_SUPPORT)
 endif()
+
+if(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_LIST_DIR}/Info.plist
+        )
+endif()
