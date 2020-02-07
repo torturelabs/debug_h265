@@ -1,7 +1,9 @@
 #include <assert.h>
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -149,12 +151,21 @@ uint_least32_t CRC32(const unsigned char *buf, size_t len) {
   return crc ^ 0xFFFFFFFF;
 }
 
+uint_least32_t global_CRC;
+
 struct global_args_t {
   int verbosity;             /* -v param */
   const char *dump_filename; /* -w param */
   char **input_files;        /* input files array */
   int n_ifiles;              /* number of input files */
+  bool calc_crc;             /* calculate CRC */
+  int crc_from, crc_to; /* from and to (including) frames to calculate CRC */
 } global_args;
+
+static const struct option long_opts[] = {{"help", no_argument, NULL, 'h'},
+                                          {"verbose", no_argument, NULL, 'v'},
+                                          {"crc", required_argument, NULL, 0},
+                                          {NULL, no_argument, NULL, 0}};
 
 static const char *opt_string = "hvw";
 
@@ -163,14 +174,17 @@ void display_usage(char *prg) {
          "\t-h\t\tshow this help\n"
          "\t-v loglevel\tset logging level\n"
          "\t-w filename\twrite dump to file\n"
-         "\n",
+         "\nAdvanced tests support:\n"
+         "\t--crc N:M\tcalculate CRC32 for each frame from N to M\n",
          prg);
   exit(2);
 }
 
 void parse_opts(int argc, char **argv) {
-  int opt;
-  while ((opt = getopt(argc, argv, opt_string)) != -1) {
+  int opt, long_ndx;
+
+  while ((opt = getopt_long(argc, argv, opt_string, long_opts, &long_ndx)) !=
+         -1) {
     switch (opt) {
     case 'h':
       display_usage(argv[0]);
@@ -181,6 +195,14 @@ void parse_opts(int argc, char **argv) {
     case 'w':
       global_args.dump_filename = optarg;
       break;
+    case 0: /* long options without short versions */
+      if (strcmp("crc", long_opts[long_ndx].name) == 0) {
+        global_args.calc_crc = true;
+        sscanf(optarg, "%d:%d", &global_args.crc_from, &global_args.crc_to);
+      }
+      break;
+    case '?':
+      exit(EXIT_FAILURE);
     }
   }
   global_args.input_files = argv + optind;
@@ -209,7 +231,8 @@ int main(int argc, char **argv) {
   //  de265_set_parameter_int(ctx, DE265_DECODER_PARAM_DUMP_VPS_HEADERS, 1);
   //  de265_set_parameter_int(ctx, DE265_DECODER_PARAM_DUMP_PPS_HEADERS, 1);
   //  de265_set_parameter_int(ctx, DE265_DECODER_PARAM_DUMP_SLICE_HEADERS, 1);
-  // de265_set_verbosity(3);
+
+  de265_set_verbosity(global_args.verbosity);
 
   // de265_set_parameter_int(ctx, DE265_DECODER_PARAM_DISABLE_DEBLOCKING, 1);
   // de265_set_parameter_int(ctx, DE265_DECODER_PARAM_DISABLE_SAO, 1);
@@ -262,10 +285,13 @@ int main(int argc, char **argv) {
     while (true) {
       err = de265_decode(ctx, &more);
       if (err != DE265_OK) {
-        perror(de265_get_error_text(err));
+        // Need to push some more data
+        if (global_args.verbosity) {
+          fprintf(stderr, "de265_decode() ret == %s\n",
+                  de265_get_error_text(err));
+        }
         break;
       }
-      // printf("Caught\n");
 
       /* Get next decoded picture and remove this picture from the decoder
          output queue. Returns NULL is there is no decoded picture ready. You
@@ -313,8 +339,10 @@ int main(int argc, char **argv) {
           }
 #endif
 
-          printf("Got image %dx%d, bytes per line=%d\nchroma format = %d\n",
-                 width, height, out_stride, fmt);
+          if (global_args.verbosity) {
+            printf("Got image %dx%d, bytes per line=%d\n", width, height,
+                   out_stride);
+          }
         }
 
         int y_stride, u_stride, v_stride = 0;
@@ -326,16 +354,19 @@ int main(int argc, char **argv) {
         imgcnt++;
         stv = etv;
         gettimeofday(&etv, NULL);
-        if (imgcnt >= 1 && imgcnt <= 100) {
-          uint_least32_t crc = CRC32(y, height * y_stride) ^
-                               CRC32(u, height * u_stride) ^
-                               CRC32(v, height * v_stride);
-          printf("Image#%d: %f, CRC=%x\n", imgcnt,
-                 etv.tv_sec - stv.tv_sec +
-                     (double)(etv.tv_usec - stv.tv_usec) / 1000000,
-                 crc);
+
+        if (global_args.calc_crc) {
+          if (imgcnt >= global_args.crc_from && imgcnt <= global_args.crc_to) {
+            uint_least32_t crc = CRC32(y, height * y_stride) ^
+                                 CRC32(u, height * u_stride) ^
+                                 CRC32(v, height * v_stride);
+            global_CRC ^= crc;
+            printf("Image#%d: %f, CRC=%x\n", imgcnt,
+                   etv.tv_sec - stv.tv_sec +
+                       (double)(etv.tv_usec - stv.tv_usec) / 1000000,
+                   crc);
+          }
         }
-        de265_release_next_picture(ctx);
 
 #ifdef HAVE_SDL2
         SDL_UpdateYUVTexture(texture, NULL, y, width, v, width / 2, u,
@@ -354,8 +385,10 @@ int main(int argc, char **argv) {
           //         height * y_stride, height * u_stride, height * v_stride);
           // exit(0);
         }
+        de265_release_next_picture(ctx);
       } else {
-        printf("No picture\n");
+        if (global_args.verbosity)
+          printf("No picture, got internal frame?\n");
       }
 
 #ifdef HAVE_SDL2
@@ -393,6 +426,12 @@ int main(int argc, char **argv) {
   double total = etv.tv_sec - start.tv_sec +
                  (double)(etv.tv_usec - start.tv_usec) / 1000000;
   printf("Overall time: %f secs, FPS: %f\n", total, imgcnt / total);
-  printf("Allocated #%d bufs, deallocated #%d, rest of #%d, max #%d\n", alcnt,
-         decnt, allocated, maxalloc);
+  if (global_args.verbosity) {
+    printf("Allocated #%d bufs, deallocated #%d, rest of #%d, max #%d\n", alcnt,
+           decnt, allocated, maxalloc);
+  }
+  if (global_args.calc_crc) {
+    printf("Global CRC code from %d to %d frames: %x\n", global_args.crc_from,
+           global_args.crc_to, global_CRC);
+  }
 }
