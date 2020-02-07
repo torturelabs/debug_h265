@@ -121,7 +121,14 @@ if(SUPPORTS_SSE4_1)
   add_subdirectory (x86)
 endif()
 
-add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS} ${X86_OBJECTS})
+if(EMSCRIPTEN AND WASM_SIMD)
+    option(WASM_SIMD "Turn on SIMD support for WASM" OFF)
+    add_definitions(-DWASM_SIMD)
+    add_subdirectory(wasm)
+endif()
+
+add_executable(${PROJECT_NAME} ${libde265_sources} ${ENCODER_OBJECTS}
+    ${X86_OBJECTS} ${WASM_OBJECTS})
 
 if(PERF_TRACE)
     target_compile_options(${PROJECT_NAME} PUBLIC "-fno-omit-frame-pointer")
@@ -142,9 +149,7 @@ if(EMSCRIPTEN)
         target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s PTHREAD_POOL_SIZE=2")
     endif()
 
-    option(WASM_SIMD "Turn on SIMD support for WASM" OFF)
     if(WASM_SIMD)
-        add_definitions(-DWASM_SIMD)
         target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-msimd128")
     endif()
 
