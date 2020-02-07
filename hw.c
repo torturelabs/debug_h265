@@ -240,6 +240,8 @@ int main(int argc, char **argv) {
   // The decoder uses background threads to do the actual decoding. Before using
   // the decoder, we have to start these background threads with
 #ifdef THREADS_SUPPORT
+  if (global_args.verbosity)
+    printf("Started with %d decoder threads\n", number_of_threads);
   err = de265_start_worker_threads(ctx, number_of_threads);
   check_err_de265(err);
 #endif
