@@ -22,7 +22,11 @@ if(NOT MSVC)
   set(sse_flags "${sse_flags} -msse4.1")
 endif()
 
-if(NOT MSVC)
+if(MSVC)
+  set(avx_flags "${avx_flags} /arch:AVX")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    set(avx_flags "${avx_flags} /QxAVX")
+else()
   set(avx_flags "${avx_flags} -mavx")
 endif()
 
