@@ -27,7 +27,6 @@ SDL_Renderer *renderer;
 SDL_Texture *texture;
 #endif
 
-char *h265file = "var.h265";
 int width = 0, height = 0;
 struct timeval start, stv, etv;
 int alcnt, decnt, allocated, maxalloc;
@@ -207,6 +206,9 @@ void parse_opts(int argc, char **argv) {
   }
   global_args.input_files = argv + optind;
   global_args.n_ifiles = argc - optind;
+  if (!global_args.n_ifiles) {
+    display_usage(argv[0]);
+  }
 }
 
 int main(int argc, char **argv) {
@@ -246,9 +248,9 @@ int main(int argc, char **argv) {
   check_err_de265(err);
 #endif
 
-  FILE *f = fopen(h265file, "rb");
+  FILE *f = fopen(global_args.input_files[0], "rb");
   if (f == NULL) {
-    printf("Could not open %s file\n", h265file);
+    printf("Could not open %s file\n", global_args.input_files[0]);
     exit(EXIT_FAILURE);
   }
 
