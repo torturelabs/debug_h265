@@ -121,7 +121,8 @@ void ff_hevc_put_unweighted_pred_8_sse(uint8_t *_dst, ptrdiff_t dststride,
     }else if(!(width & 7))
     {
         for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x += 8) {
+            // dead code
+            //for (x = 0; x < width; x += 8) {
                     r0 = _mm_load_si128((__m128i *) (src+x));
 
                     r0 = _mm_adds_epi16(r0, f0);
@@ -130,7 +131,7 @@ void ff_hevc_put_unweighted_pred_8_sse(uint8_t *_dst, ptrdiff_t dststride,
                     r0 = _mm_packus_epi16(r0, r0);
 
                     _mm_storel_epi64((__m128i *) (dst+x), r0);
-            }
+            //}
                     dst += dststride;
                     src += srcstride;
                 }
