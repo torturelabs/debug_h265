@@ -4,3 +4,4 @@ build
 *.o
 .DS_Store
 *.h265
+compile_commands.json
