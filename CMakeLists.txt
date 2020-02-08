@@ -168,3 +168,9 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${TARGET_LIBS})
     add_definitions(-DTHREADS_SUPPORT)
 endif()
+
+# Enable LTO
+cmake_policy(SET CMP0069 NEW)
+include(CheckIPOSupported)
+check_ipo_supported()
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
