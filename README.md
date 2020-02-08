@@ -25,11 +25,18 @@ source ~/git/emsdk/emsdk_env.sh
 emconfigure cmake -H. ......
 ```
 
+Build using Intel C++ compiler (native code only), add to cmake flags:
+
+```
+-DCMAKE_CXX_COMPILER=icpc -DCMAKE_C_COMPILER=icc
+```
+
 Make build (in all cases)
 
 ```
 cmake --build build -- VERBOSE=1
 ```
+
 ## Run
 
 WASM version with standalone V8 installed:
