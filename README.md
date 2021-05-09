@@ -22,7 +22,7 @@ Compilation to WASM:
 
 ```
 source ~/git/emsdk/emsdk_env.sh
-emconfigure cmake -H. ......
+emcmake cmake -H. ......
 ```
 
 Build using Intel C++ compiler (native code only), add to cmake flags:
