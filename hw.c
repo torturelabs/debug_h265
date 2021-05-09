@@ -13,6 +13,9 @@
 
 #include <libde265/de265.h>
 
+#define xstr(a) str(a)
+#define str(a) #a
+
 void check_err_de265(de265_error err) {
   if (err == DE265_OK)
     return;
@@ -249,9 +252,6 @@ int main(int argc, char **argv) {
   err = de265_start_worker_threads(ctx, number_of_threads);
   check_err_de265(err);
 #endif
-
-  #define xstr(a) str(a)
-#define str(a) #a
 
 #ifdef H265_FILENAME
   FILE *f = fopen(xstr(H265_FILENAME), "rb");
