@@ -26,7 +26,7 @@ Compilation to WASM:
 source ~/git/emsdk/emsdk_env.sh
 emcmake cmake -DBROWSER_RUN=ON -H. ......
 cmake --build build
-cd build; python3 -m http.server
+python3 -m http.server --directory build
 open http://0.0.0.0:8000/debug_h265.html
 ```
 

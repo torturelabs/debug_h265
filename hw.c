@@ -212,7 +212,9 @@ void parse_opts(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+#ifndef H265_FILENAME
   parse_opts(argc, argv);
+#endif
 
   // threads for decoder
   int number_of_threads = 4;
@@ -248,7 +250,14 @@ int main(int argc, char **argv) {
   check_err_de265(err);
 #endif
 
+  #define xstr(a) str(a)
+#define str(a) #a
+
+#ifdef H265_FILENAME
+  FILE *f = fopen(xstr(H265_FILENAME), "rb");
+#else
   FILE *f = fopen(global_args.input_files[0], "rb");
+#endif
   if (f == NULL) {
     printf("Could not open %s file\n", global_args.input_files[0]);
     exit(EXIT_FAILURE);

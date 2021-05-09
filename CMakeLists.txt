@@ -160,6 +160,8 @@ if(EMSCRIPTEN)
     target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s TOTAL_MEMORY=1073741824")
 
     set(H265_FILENAME var.h265)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        H265_FILENAME=${H265_FILENAME})
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${H265_FILENAME} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
     target_link_options(${PROJECT_NAME} PUBLIC --embed-file
         ${CMAKE_CURRENT_BINARY_DIR}/${H265_FILENAME})
