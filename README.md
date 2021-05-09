@@ -4,6 +4,8 @@
 git clone https://github.com/torturelabs/debug_h265 --recursive
 ```
 
+Used for synchronize CMake finders.
+
 ## Download sample H.265 bytestream
 
 ```
@@ -12,7 +14,7 @@ wget https://camera.torturelabs.com/var.h265
 
 ## Build
 
-Prepare configuration, native code:
+Prepare configuration, native code (tested on macOS and Linux):
 
 ```
 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DSUPPORTS_SSE4_1=ON
@@ -22,7 +24,10 @@ Compilation to WASM:
 
 ```
 source ~/git/emsdk/emsdk_env.sh
-emcmake cmake -H. ......
+emcmake cmake -DBROWSER_RUN=ON -H. ......
+cmake --build build
+cd build; python3 -m http.server
+open http://0.0.0.0:8000/debug_h265.html
 ```
 
 Build using Intel C++ compiler (native code only), add to cmake flags:
