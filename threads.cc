@@ -105,6 +105,8 @@ void de265_progress_lock::wait_for_progress(int progress)
 
   de265_mutex_lock(&mutex);
   while (mProgress < progress) {
+    // blocks the current thread waiting on the condition variable specified by
+    // cond, and releases the mutex specified by mutex
     de265_cond_wait(&cond, &mutex);
   }
   de265_mutex_unlock(&mutex);
@@ -117,6 +119,7 @@ void de265_progress_lock::set_progress(int progress)
   if (progress>mProgress) {
     mProgress = progress;
 
+    // unblock all threads waiting for a condition variable
     de265_cond_broadcast(&cond, &mutex);
   }
 
