@@ -10,7 +10,7 @@ add_library(wasm OBJECT ${wasm_sources})
 
 add_library(wasm_simd OBJECT ${wasm_simd_sources})
 
-set(wasm_flags "-msse4.2 -msimd128 -fno-vectorize")
+set(wasm_flags "-msse4.2 -msimd128")
 
 set(WASM_OBJECTS $<TARGET_OBJECTS:wasm> $<TARGET_OBJECTS:wasm_simd> PARENT_SCOPE)
 

@@ -153,6 +153,8 @@ if(EMSCRIPTEN)
 
   if(WASM_SIMD)
     target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-msimd128")
+    target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-msse4.2")
+    #target_compile_options(${PROJECT_NAME} PUBLIC "SHELL:-fno-vectorize")
   endif()
 
   target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-s ASSERTIONS=1")
@@ -161,8 +163,6 @@ if(EMSCRIPTEN)
   set(H265_FILENAME var.h265)
   target_compile_definitions(${PROJECT_NAME}
                              PRIVATE H265_FILENAME=${H265_FILENAME})
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/html/webgl.js
-                 ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${H265_FILENAME}
                  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   target_link_options(${PROJECT_NAME} PUBLIC --embed-file

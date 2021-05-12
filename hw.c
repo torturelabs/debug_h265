@@ -272,10 +272,23 @@ int main(int argc, char **argv) {
 
   char buf[65000];
   int nlen = 0, imgcnt = 0;
-  gettimeofday(&start, NULL);
-  etv = start;
 
-  while (!feof(f)) {
+  int iteration = 0;
+
+  while (true) {
+    if (feof(f)) {
+      iteration++;
+      if (iteration == 1) {
+        // end of warmup phase
+        gettimeofday(&start, NULL);
+        etv = start;
+        imgcnt = 0;
+      } else if (iteration == 11)
+        break;
+
+      rewind(f);
+    }
+
     int len = fread(buf, 1, sizeof(buf), f);
     if (!len && ferror(f)) {
       perror("Error while file reading");
@@ -365,10 +378,10 @@ int main(int argc, char **argv) {
         // printf("y_stride = %d, u_stride = %d, v_stride = %d\n", y_stride,
         // u_stride, v_stride);
         imgcnt++;
-        stv = etv;
-        gettimeofday(&etv, NULL);
 
         if (global_args.calc_crc) {
+          stv = etv;
+          gettimeofday(&etv, NULL);
           if (imgcnt >= global_args.crc_from && imgcnt <= global_args.crc_to) {
             uint_least32_t crc = CRC32(y, height * y_stride) ^
                                  CRC32(u, height * u_stride) ^
@@ -398,7 +411,7 @@ int main(int argc, char **argv) {
           //         height * y_stride, height * u_stride, height * v_stride);
           // exit(0);
         }
-        de265_release_next_picture(ctx);
+        // de265_release_next_picture(ctx);
       } else {
         if (global_args.verbosity)
           printf("No picture, got internal frame?\n");
@@ -436,6 +449,7 @@ int main(int argc, char **argv) {
   check_err_de265(err);
 
   printf("Read overall %d bytes, %d images\n", nlen, imgcnt);
+  gettimeofday(&etv, NULL);
   double total = etv.tv_sec - start.tv_sec +
                  (double)(etv.tv_usec - start.tv_usec) / 1000000;
   printf("Overall time: %f secs, FPS: %f\n", total, imgcnt / total);

@@ -1980,7 +1980,7 @@ void ff_hevc_put_hevc_qpel_pixels_8_wasm(int16_t *dst, ptrdiff_t dststride,
     }
   } else {
 #if MASKMOVE
-    x4 = _mm_set_epi32(0, 0, 0, -1); // mask to store
+    __m128i x4 = _mm_set_epi32(0, 0, 0, -1); // mask to store
 #endif
     for (y = 0; y < height; y++) {
       for (x = 0; x < width; x += 2) {
