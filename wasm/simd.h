@@ -23,6 +23,6 @@
 
 #include "acceleration.h"
 
-void init_acceleration_functions_wasm(struct acceleration_functions* accel);
+void init_acceleration_functions_wasm(struct acceleration_functions *accel);
 
 #endif
