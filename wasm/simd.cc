@@ -60,6 +60,4 @@ void init_acceleration_functions_wasm(struct acceleration_functions *accel) {
   accel->transform_add_8[1] = ff_hevc_transform_8x8_add_8_wasm;
   accel->transform_add_8[2] = ff_hevc_transform_16x16_add_8_wasm;
   accel->transform_add_8[3] = ff_hevc_transform_32x32_add_8_wasm;
-  accel->put_unweighted_pred_8 = ff_hevc_put_unweighted_pred_8_wasm;
-  accel->put_weighted_pred_avg_8 = ff_hevc_put_weighted_pred_avg_8_wasm;
 }
