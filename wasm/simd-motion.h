@@ -24,6 +24,31 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define UNWEIGHTED_PRED_8 ff_hevc_put_unweighted_pred_8_wasm
+#define WEIGHTED_PRED_AVG_8 ff_hevc_put_weighted_pred_avg_8_wasm
+
+#define HEVC_EPEL_8    ff_hevc_put_hevc_epel_pixels_8_wasm
+#define HEVC_EPEL_H_8  ff_hevc_put_hevc_epel_h_8_wasm
+#define HEVC_EPEL_V_8  ff_hevc_put_hevc_epel_v_8_wasm
+#define HEVC_EPEL_HV_8 ff_hevc_put_hevc_epel_hv_8_wasm
+
+#define PUT_QPEL_0_0_FALLBACK ff_hevc_put_hevc_qpel_pixels_8_wasm
+#define PUT_QPEL_0_1_FALLBACK ff_hevc_put_hevc_qpel_v_1_8_wasm
+#define PUT_QPEL_0_2_FALLBACK ff_hevc_put_hevc_qpel_v_2_8_wasm
+#define PUT_QPEL_0_3_FALLBACK ff_hevc_put_hevc_qpel_v_3_8_wasm
+#define PUT_QPEL_1_0_FALLBACK ff_hevc_put_hevc_qpel_h_1_8_wasm
+#define PUT_QPEL_1_1_FALLBACK ff_hevc_put_hevc_qpel_h_1_v_1_wasm
+#define PUT_QPEL_1_2_FALLBACK ff_hevc_put_hevc_qpel_h_1_v_2_wasm
+#define PUT_QPEL_1_3_FALLBACK ff_hevc_put_hevc_qpel_h_1_v_3_wasm
+#define PUT_QPEL_2_0_FALLBACK ff_hevc_put_hevc_qpel_h_2_8_wasm
+#define PUT_QPEL_2_1_FALLBACK ff_hevc_put_hevc_qpel_h_2_v_1_wasm
+#define PUT_QPEL_2_2_FALLBACK ff_hevc_put_hevc_qpel_h_2_v_2_wasm
+#define PUT_QPEL_2_3_FALLBACK ff_hevc_put_hevc_qpel_h_2_v_3_wasm
+#define PUT_QPEL_3_0_FALLBACK ff_hevc_put_hevc_qpel_h_3_8_wasm
+#define PUT_QPEL_3_1_FALLBACK ff_hevc_put_hevc_qpel_h_3_v_1_wasm
+#define PUT_QPEL_3_2_FALLBACK ff_hevc_put_hevc_qpel_h_3_v_2_wasm
+#define PUT_QPEL_3_3_FALLBACK ff_hevc_put_hevc_qpel_h_3_v_3_wasm
+
 void ff_hevc_put_unweighted_pred_8_wasm(uint8_t *_dst, ptrdiff_t dststride,
                                        const int16_t *src, ptrdiff_t srcstride,
                                        int width, int height);
@@ -98,5 +123,14 @@ void ff_hevc_put_hevc_qpel_h_3_v_2_wasm(int16_t *dst, ptrdiff_t dststride,
 void ff_hevc_put_hevc_qpel_h_3_v_3_wasm(int16_t *dst, ptrdiff_t dststride,
                                        const uint8_t *src, ptrdiff_t srcstride,
                                        int width, int height, int16_t* mcbuffer);
+
+void put_weighted_pred_8_fallback(uint8_t *_dst, ptrdiff_t dststride,
+                                  const int16_t *src, ptrdiff_t srcstride,
+                                  int width, int height,
+                                  int w,int o,int log2WD);
+void put_weighted_bipred_8_fallback(uint8_t *dst, ptrdiff_t dststride,
+                                    const int16_t *src1, const int16_t *src2, ptrdiff_t srcstride,
+                                    int width, int height,
+                                    int w1,int o1, int w2,int o2, int log2WD);
 
 #endif

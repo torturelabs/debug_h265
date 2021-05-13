@@ -26,6 +26,12 @@
 
 #include "util.h"
 
+#define TRANSFORM_4X4_ADD_8 transform_4x4_add_8_fallback
+#define TRANSFORM_8X8_ADD_8 transform_8x8_add_8_fallback
+#define TRANSFORM_16X16_ADD_8 transform_16x16_add_8_fallback
+#define TRANSFORM_32X32_ADD_8 transform_32x32_add_8_fallback
+
+#define TRANSFORM_SKIP_8 transform_skip_8_fallback
 
 // --- decoding ---
 

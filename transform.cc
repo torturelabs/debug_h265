@@ -23,6 +23,12 @@
 
 #include <assert.h>
 
+#ifdef WASM_SIMD
+#include "wasm/simd-dct.h"
+#else
+#include "fallback-dct.h"
+#endif
+
 
 const int tab8_22[] = { 29,30,31,32,33,33,34,34,35,35,36,36,37 /*,37*/ };
 
@@ -221,14 +227,14 @@ void transform_coefficients(acceleration_functions* acceleration,
 
   if (trType==1) {
 
-    acceleration->transform_4x4_dst_add<pixel_t>(dst, coeff, dstStride, bit_depth);
+     transform_4x4_luma_add_8_fallback((uint8_t*)dst, coeff, dstStride);
 
   } else {
 
-    /**/ if (nT==4)  { acceleration->transform_add<pixel_t>(0,dst,coeff,dstStride, bit_depth); }
-    else if (nT==8)  { acceleration->transform_add<pixel_t>(1,dst,coeff,dstStride, bit_depth); }
-    else if (nT==16) { acceleration->transform_add<pixel_t>(2,dst,coeff,dstStride, bit_depth); }
-    else             { acceleration->transform_add<pixel_t>(3,dst,coeff,dstStride, bit_depth); }
+    /**/ if (nT==4)  { TRANSFORM_4X4_ADD_8((uint8_t*)dst,coeff,dstStride); }
+    else if (nT==8)  { TRANSFORM_8X8_ADD_8((uint8_t*)dst,coeff,dstStride); }
+    else if (nT==16) { TRANSFORM_16X16_ADD_8((uint8_t*)dst,coeff,dstStride); }
+    else             { TRANSFORM_32X32_ADD_8((uint8_t*)dst,coeff,dstStride); }
   }
 
 #if 0
@@ -286,14 +292,14 @@ void transform_coefficients_explicit(thread_context* tctx,
 
   if (trType==1) {
 
-    acceleration->transform_idst_4x4(residual, coeff, bdShift, max_coeff_bits);
+    transform_idst_4x4_fallback(residual, coeff, bdShift, max_coeff_bits);
 
   } else {
 
-    /**/ if (nT==4)  { acceleration->transform_idct_4x4(residual,coeff,bdShift,max_coeff_bits); }
-    else if (nT==8)  { acceleration->transform_idct_8x8(residual,coeff,bdShift,max_coeff_bits); }
-    else if (nT==16) { acceleration->transform_idct_16x16(residual,coeff,bdShift,max_coeff_bits); }
-    else             { acceleration->transform_idct_32x32(residual,coeff,bdShift,max_coeff_bits); }
+    /**/ if (nT==4)  { transform_idct_4x4_fallback(residual,coeff,bdShift,max_coeff_bits); }
+    else if (nT==8)  { transform_idct_8x8_fallback(residual,coeff,bdShift,max_coeff_bits); }
+    else if (nT==16) { transform_idct_16x16_fallback(residual,coeff,bdShift,max_coeff_bits); }
+    else             { transform_idct_32x32_fallback(residual,coeff,bdShift,max_coeff_bits); }
   }
 
 
@@ -319,10 +325,29 @@ void inv_transform(acceleration_functions* acceleration,
   if (trType==1) {
     assert(log2TbSize==2);
 
-    acceleration->transform_4x4_dst_add_8(dst, coeff, dstStride);
+    transform_4x4_luma_add_8_fallback(dst, coeff, dstStride);
 
   } else {
-    acceleration->transform_add_8[log2TbSize-2](dst,coeff,dstStride);
+    switch (log2TbSize-2) {
+      case 0:
+        TRANSFORM_4X4_ADD_8(dst,coeff,dstStride);
+        //acceleration->transform_add_8[0](dst,coeff,dstStride);
+        break;
+      case 1:
+        TRANSFORM_8X8_ADD_8(dst,coeff,dstStride);
+        //acceleration->transform_add_8[1](dst,coeff,dstStride);
+        break;
+      case 2:
+        TRANSFORM_16X16_ADD_8(dst,coeff,dstStride);
+        //acceleration->transform_add_8[2](dst,coeff,dstStride);
+        break;
+      case 3:
+        TRANSFORM_32X32_ADD_8(dst,coeff,dstStride);
+        //acceleration->transform_add_8[3](dst,coeff,dstStride);
+        break;
+      default:
+        {}
+    }
   }
 
 
@@ -427,12 +452,12 @@ void scale_coefficients_internal(thread_context* tctx,
 
     if (rdpcmMode) {
       if (rdpcmMode==2)
-        tctx->decctx->acceleration.transform_bypass_rdpcm_v(residual, coeff, nT);
+        transform_bypass_rdpcm_v_fallback(residual, coeff, nT);
       else
-        tctx->decctx->acceleration.transform_bypass_rdpcm_h(residual, coeff, nT);
+        transform_bypass_rdpcm_h_fallback(residual, coeff, nT);
     }
     else {
-      tctx->decctx->acceleration.transform_bypass(residual, coeff, nT);
+      transform_bypass_fallback(residual, coeff, nT);
     }
 
     if (cIdx != 0) {
@@ -504,10 +529,8 @@ void scale_coefficients_internal(thread_context* tctx,
 
       for (int i=0;i<tctx->nCoeff[cIdx];i++) {
         int pos = tctx->coeffPos[cIdx][i];
-        int x = pos%nT;
-        int y = pos/nT;
 
-        const int m_x_y = sclist[x+y*nT];
+        const int m_x_y = sclist[pos];
         const int fact = m_x_y * levelScale[qP%6] << (qP/6);
 
         int64_t currCoeff  = tctx->coeffList[cIdx][i];

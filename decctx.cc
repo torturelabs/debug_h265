@@ -930,7 +930,7 @@ de265_error decoder_context::decode_slice_unit_parallel(image_unit* imgunit,
     int firstCTB = shdr->slice_segment_address;
 
     for (int ctb=0;ctb<firstCTB;ctb++) {
-      printf("mark pre progress %d\n",ctb);
+      //printf("mark pre progress %d\n",ctb);
       img->ctb_progress[ctb].set_progress(CTB_PROGRESS_PREFILTER);
     }
   }
@@ -1070,7 +1070,7 @@ de265_error decoder_context::decode_slice_unit_WPP(image_unit* imgunit,
 
     // add task
 
-    printf("start task for ctb-row: %d\n",ctbRow);
+    //printf("start task for ctb-row: %d\n",ctbRow);
     img->thread_start(1);
     sliceunit->nThreads++;
     add_task_decode_CTB_row(tctx, entryPt==0, ctbRow);

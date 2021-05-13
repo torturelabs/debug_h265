@@ -25,6 +25,11 @@
 
 #include <assert.h>
 
+#ifdef WASM_SIMD
+#include "wasm/simd-motion.h"
+#else
+#include "fallback-motion.h"
+#endif
 
 #include <sys/types.h>
 #include <signal.h>
@@ -75,10 +80,11 @@ void mc_luma(const base_context* ctx,
     if (xIntOffsL >= 0 && yIntOffsL >= 0 &&
         nPbW+xIntOffsL <= w && nPbH+yIntOffsL <= h) {
 
-      ctx->acceleration.put_hevc_qpel(out, out_stride,
-                                      &ref[yIntOffsL*ref_stride + xIntOffsL],
-                                      ref_stride /* sizeof(pixel_t)*/,
-                                      nPbW,nPbH, mcbuffer, 0,0, bitDepth_L);
+      //ctx->acceleration.put_hevc_qpel(out, out_stride,
+      PUT_QPEL_0_0_FALLBACK(out, out_stride,
+                            (const uint8_t*)&ref[yIntOffsL*ref_stride + xIntOffsL],
+                            ref_stride /* sizeof(pixel_t)*/,
+                            nPbW,nPbH, mcbuffer);
     }
     else {
       for (int y=0;y<nPbH;y++)
@@ -153,9 +159,116 @@ void mc_luma(const base_context* ctx,
       src_stride = MAX_CU_SIZE+16;
     }
 
-    ctx->acceleration.put_hevc_qpel(out, out_stride,
-                                    src_ptr, src_stride /* sizeof(pixel_t) */,
-                                    nPbW,nPbH, mcbuffer, xFracL,yFracL, bitDepth_L);
+    switch (xFracL) {
+      case 0: {
+                switch (yFracL) {
+                  case 0:
+                    PUT_QPEL_0_0_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 1:
+                    PUT_QPEL_0_1_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 2:
+                    PUT_QPEL_0_2_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 3:
+                    PUT_QPEL_0_3_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  default: {}
+                }
+                break;
+              }
+      case 1: {
+                switch (yFracL) {
+                  case 0:
+                    PUT_QPEL_1_0_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 1:
+                    PUT_QPEL_1_1_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 2:
+                    PUT_QPEL_1_2_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 3:
+                    PUT_QPEL_1_3_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  default: {}
+                }
+                break;
+              }
+      case 2: {
+                switch (yFracL) {
+                  case 0:
+                    PUT_QPEL_2_0_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 1:
+                    PUT_QPEL_2_1_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 2:
+                    PUT_QPEL_2_2_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 3:
+                    PUT_QPEL_2_3_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  default: {}
+                }
+                break;
+              }
+      case 3: {
+                switch (yFracL) {
+                  case 0:
+                    PUT_QPEL_3_0_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 1:
+                    PUT_QPEL_3_1_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 2:
+                    PUT_QPEL_3_2_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  case 3:
+                    PUT_QPEL_3_3_FALLBACK(out, out_stride,
+                        (const uint8_t*)src_ptr, src_stride /* sizeof(pixel_t) */,
+                        nPbW,nPbH, mcbuffer);
+                    break;
+                  default: {}
+                }
+                break;
+              }
+      default: { }
+              //ctx->acceleration.put_hevc_qpel(out, out_stride,
+              //    src_ptr, src_stride /* sizeof(pixel_t) */,
+              //    nPbW,nPbH, mcbuffer, xFracL,yFracL, bitDepth_L);
+    }
 
 
     logtrace(LogMotion,"---V---\n");
@@ -202,9 +315,10 @@ void mc_chroma(const base_context* ctx,
   if (xFracC == 0 && yFracC == 0) {
     if (xIntOffsC>=0 && nPbWC+xIntOffsC<=wC &&
         yIntOffsC>=0 && nPbHC+yIntOffsC<=hC) {
-      ctx->acceleration.put_hevc_epel(out, out_stride,
-                                      &ref[xIntOffsC + yIntOffsC*ref_stride], ref_stride,
-                                      nPbWC,nPbHC, 0,0, NULL, bit_depth_C);
+      //ctx->acceleration.put_hevc_epel(out, out_stride,
+      HEVC_EPEL_8(out, out_stride,
+                    (const uint8_t*)&ref[xIntOffsC + yIntOffsC*ref_stride], ref_stride,
+                    nPbWC,nPbHC, 0,0, NULL);
     }
     else
       {
@@ -251,19 +365,22 @@ void mc_chroma(const base_context* ctx,
 
 
     if (xFracC && yFracC) {
-      ctx->acceleration.put_hevc_epel_hv(out, out_stride,
-                                         src_ptr, src_stride,
-                                         nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
+      //ctx->acceleration.put_hevc_epel_hv(out, out_stride,
+      HEVC_EPEL_HV_8(out, out_stride,
+                     (const uint8_t*)src_ptr, src_stride,
+                     nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
     }
     else if (xFracC) {
-      ctx->acceleration.put_hevc_epel_h(out, out_stride,
-                                        src_ptr, src_stride,
-                                        nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
+      //ctx->acceleration.put_hevc_epel_h(out, out_stride,
+      HEVC_EPEL_H_8(out, out_stride,
+                    (const uint8_t*)src_ptr, src_stride,
+                    nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
     }
     else if (yFracC) {
-      ctx->acceleration.put_hevc_epel_v(out, out_stride,
-                                        src_ptr, src_stride,
-                                        nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
+      //ctx->acceleration.put_hevc_epel_v(out, out_stride,
+      HEVC_EPEL_V_8(out, out_stride,
+                    (const uint8_t*)src_ptr, src_stride,
+                    nPbWC,nPbHC, xFracC,yFracC, mcbuffer, bit_depth_C);
     }
     else {
       assert(false); // full-pel shifts are handled above
@@ -439,14 +556,21 @@ void generate_inter_prediction_samples(base_context* ctx,
   if (shdr->slice_type == SLICE_TYPE_P) {
     if (pps->weighted_pred_flag==0) {
       if (predFlag[0]==1 && predFlag[1]==0) {
-        ctx->acceleration.put_unweighted_pred(pixels[0], stride[0],
-                                              predSamplesL[0],nCS, nPbW,nPbH, bit_depth_L);
-        ctx->acceleration.put_unweighted_pred(pixels[1], stride[1],
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[0], stride[0], predSamplesL[0],nCS, nPbW,nPbH);
+        //ctx->acceleration.put_unweighted_pred(pixels[0], stride[0],
+        //                                      predSamplesL[0],nCS, nPbW,nPbH, bit_depth_L);
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[1], stride[1],
                                               predSamplesC[0][0],nCS,
-                                              nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
-        ctx->acceleration.put_unweighted_pred(pixels[2], stride[2],
+                                              nPbW/SubWidthC,nPbH/SubHeightC);
+        //ctx->acceleration.put_unweighted_pred(pixels[1], stride[1],
+        //                                      predSamplesC[0][0],nCS,
+        //                                      nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[2], stride[2],
                                               predSamplesC[1][0],nCS,
-                                              nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
+                                              nPbW/SubWidthC,nPbH/SubHeightC);
+        //ctx->acceleration.put_unweighted_pred(pixels[2], stride[2],
+        //                                      predSamplesC[1][0],nCS,
+        //                                      nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
       }
       else {
         ctx->add_warning(DE265_WARNING_BOTH_PREDFLAGS_ZERO, false);
@@ -473,15 +597,18 @@ void generate_inter_prediction_samples(base_context* ctx,
 
         logtrace(LogMotion,"weighted-0 [%d] %d %d %d  %dx%d\n", refIdx0, luma_log2WD-6,luma_w0,luma_o0,nPbW,nPbH);
 
-        ctx->acceleration.put_weighted_pred(pixels[0], stride[0],
-                                            predSamplesL[0],nCS, nPbW,nPbH,
-                                            luma_w0, luma_o0, luma_log2WD, bit_depth_L);
-        ctx->acceleration.put_weighted_pred(pixels[1], stride[1],
+        //ctx->acceleration.put_weighted_pred(pixels[0], stride[0],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[0], stride[0],
+                                      predSamplesL[0],nCS, nPbW,nPbH,
+                                      luma_w0, luma_o0, luma_log2WD);
+        //ctx->acceleration.put_weighted_pred(pixels[1], stride[1],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[1], stride[1],
                                             predSamplesC[0][0],nCS, nPbW/SubWidthC,nPbH/SubHeightC,
-                                            chroma0_w0, chroma0_o0, chroma_log2WD, bit_depth_C);
-        ctx->acceleration.put_weighted_pred(pixels[2], stride[2],
+                                            chroma0_w0, chroma0_o0, chroma_log2WD);
+        //ctx->acceleration.put_weighted_pred(pixels[2], stride[2],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[2], stride[2],
                                             predSamplesC[1][0],nCS, nPbW/SubWidthC,nPbH/SubHeightC,
-                                            chroma1_w0, chroma1_o0, chroma_log2WD, bit_depth_C);
+                                            chroma1_w0, chroma1_o0, chroma_log2WD);
       }
       else {
         ctx->add_warning(DE265_WARNING_BOTH_PREDFLAGS_ZERO, false);
@@ -500,20 +627,20 @@ void generate_inter_prediction_samples(base_context* ctx,
         int16_t* in0 = predSamplesL[0];
         int16_t* in1 = predSamplesL[1];
 
-        ctx->acceleration.put_weighted_pred_avg(pixels[0], stride[0],
-                                                in0,in1, nCS, nPbW, nPbH, bit_depth_L);
+        WEIGHTED_PRED_AVG_8((uint8_t*)pixels[0], stride[0],
+                            in0,in1, nCS, nPbW, nPbH);
 
         int16_t* in00 = predSamplesC[0][0];
         int16_t* in01 = predSamplesC[0][1];
         int16_t* in10 = predSamplesC[1][0];
         int16_t* in11 = predSamplesC[1][1];
 
-        ctx->acceleration.put_weighted_pred_avg(pixels[1], stride[1],
-                                                in00,in01, nCS,
-                                                nPbW/SubWidthC, nPbH/SubHeightC, bit_depth_C);
-        ctx->acceleration.put_weighted_pred_avg(pixels[2], stride[2],
-                                                in10,in11, nCS,
-                                                nPbW/SubWidthC, nPbH/SubHeightC, bit_depth_C);
+        WEIGHTED_PRED_AVG_8((uint8_t*)pixels[1], stride[1],
+                            in00,in01, nCS,
+                            nPbW/SubWidthC, nPbH/SubHeightC);
+        WEIGHTED_PRED_AVG_8((uint8_t*)pixels[2], stride[2],
+                            in10,in11, nCS,
+                            nPbW/SubWidthC, nPbH/SubHeightC);
       }
       else {
         // weighted prediction
@@ -544,41 +671,47 @@ void generate_inter_prediction_samples(base_context* ctx,
         int16_t* in0 = predSamplesL[0];
         int16_t* in1 = predSamplesL[1];
 
-        ctx->acceleration.put_weighted_bipred(pixels[0], stride[0],
+        //ctx->acceleration.put_weighted_bipred(pixels[0], stride[0],
+        put_weighted_bipred_8_fallback((uint8_t*)pixels[0], stride[0],
                                               in0,in1, nCS, nPbW, nPbH,
                                               luma_w0,luma_o0,
                                               luma_w1,luma_o1,
-                                              luma_log2WD, bit_depth_L);
+                                              luma_log2WD);
 
         int16_t* in00 = predSamplesC[0][0];
         int16_t* in01 = predSamplesC[0][1];
         int16_t* in10 = predSamplesC[1][0];
         int16_t* in11 = predSamplesC[1][1];
 
-        ctx->acceleration.put_weighted_bipred(pixels[1], stride[1],
+        //ctx->acceleration.put_weighted_bipred(pixels[1], stride[1],
+        put_weighted_bipred_8_fallback((uint8_t*)pixels[1], stride[1],
                                               in00,in01, nCS, nPbW/SubWidthC, nPbH/SubHeightC,
                                               chroma0_w0,chroma0_o0,
                                               chroma0_w1,chroma0_o1,
-                                              chroma_log2WD, bit_depth_C);
-        ctx->acceleration.put_weighted_bipred(pixels[2], stride[2],
+                                              chroma_log2WD);
+        //ctx->acceleration.put_weighted_bipred(pixels[2], stride[2],
+        put_weighted_bipred_8_fallback((uint8_t*)pixels[2], stride[2],
                                               in10,in11, nCS, nPbW/SubWidthC, nPbH/SubHeightC,
                                               chroma1_w0,chroma1_o0,
                                               chroma1_w1,chroma1_o1,
-                                              chroma_log2WD, bit_depth_C);
+                                              chroma_log2WD);
       }
     }
     else if (predFlag[0]==1 || predFlag[1]==1) {
       int l = predFlag[0] ? 0 : 1;
 
       if (pps->weighted_bipred_flag==0) {
-        ctx->acceleration.put_unweighted_pred(pixels[0], stride[0],
-                                              predSamplesL[l],nCS, nPbW,nPbH, bit_depth_L);
-        ctx->acceleration.put_unweighted_pred(pixels[1], stride[1],
-                                              predSamplesC[0][l],nCS,
-                                              nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
-        ctx->acceleration.put_unweighted_pred(pixels[2], stride[2],
-                                              predSamplesC[1][l],nCS,
-                                              nPbW/SubWidthC,nPbH/SubHeightC, bit_depth_C);
+        //ctx->acceleration.put_unweighted_pred(
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[0], stride[0],
+                          predSamplesL[l],nCS, nPbW,nPbH);
+        //ctx->acceleration.put_unweighted_pred(
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[1], stride[1],
+                          predSamplesC[0][l],nCS,
+                          nPbW/SubWidthC,nPbH/SubHeightC);
+        //ctx->acceleration.put_unweighted_pred(
+        UNWEIGHTED_PRED_8((uint8_t*)pixels[2], stride[2],
+                          predSamplesC[1][l],nCS,
+                          nPbW/SubWidthC,nPbH/SubHeightC);
       }
       else {
         int refIdx = vi->refIdx[l];
@@ -596,17 +729,20 @@ void generate_inter_prediction_samples(base_context* ctx,
 
         logtrace(LogMotion,"weighted-B-L%d [%d] %d %d %d  %dx%d\n", l, refIdx, luma_log2WD-6,luma_w,luma_o,nPbW,nPbH);
 
-        ctx->acceleration.put_weighted_pred(pixels[0], stride[0],
+        //ctx->acceleration.put_weighted_pred(pixels[0], stride[0],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[0], stride[0],
                                             predSamplesL[l],nCS, nPbW,nPbH,
-                                            luma_w, luma_o, luma_log2WD, bit_depth_L);
-        ctx->acceleration.put_weighted_pred(pixels[1], stride[1],
+                                            luma_w, luma_o, luma_log2WD);
+        //ctx->acceleration.put_weighted_pred(pixels[1], stride[1],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[1], stride[1],
                                             predSamplesC[0][l],nCS,
                                             nPbW/SubWidthC,nPbH/SubHeightC,
-                                            chroma0_w, chroma0_o, chroma_log2WD, bit_depth_C);
-        ctx->acceleration.put_weighted_pred(pixels[2], stride[2],
+                                            chroma0_w, chroma0_o, chroma_log2WD);
+        //ctx->acceleration.put_weighted_pred(pixels[2], stride[2],
+        put_weighted_pred_8_fallback((uint8_t*)pixels[2], stride[2],
                                             predSamplesC[1][l],nCS,
                                             nPbW/SubWidthC,nPbH/SubHeightC,
-                                            chroma1_w, chroma1_o, chroma_log2WD, bit_depth_C);
+                                            chroma1_w, chroma1_o, chroma_log2WD);
       }
     }
     else {

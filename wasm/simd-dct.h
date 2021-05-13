@@ -25,11 +25,31 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define TRANSFORM_4X4_ADD_8 transform_4x4_add_8_fallback
+#define TRANSFORM_8X8_ADD_8 ff_hevc_transform_8x8_add_8_wasm
+#define TRANSFORM_16X16_ADD_8 ff_hevc_transform_16x16_add_8_wasm
+#define TRANSFORM_32X32_ADD_8 ff_hevc_transform_32x32_add_8_wasm
+
+#define TRANSFORM_SKIP_8 ff_hevc_transform_skip_8_wasm
+
 void ff_hevc_transform_skip_8_wasm(uint8_t *_dst, const int16_t *coeffs, ptrdiff_t _stride);
 void ff_hevc_transform_4x4_luma_add_8_wasm(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
 void ff_hevc_transform_4x4_add_8_wasm(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
 void ff_hevc_transform_8x8_add_8_wasm(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
 void ff_hevc_transform_16x16_add_8_wasm(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
 void ff_hevc_transform_32x32_add_8_wasm(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
+
+// fallback protos
+void transform_4x4_add_8_fallback(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
+void transform_bypass_rdpcm_v_fallback(int32_t *r, const int16_t *coeffs,int nT);
+void transform_bypass_rdpcm_h_fallback(int32_t *r, const int16_t *coeffs,int nT);
+void transform_bypass_fallback(int32_t *r, const int16_t *coeffs, int nT);
+void transform_4x4_luma_add_8_fallback(uint8_t *dst, const int16_t *coeffs, ptrdiff_t stride);
+
+void transform_idst_4x4_fallback(int32_t *dst, const int16_t *coeffs, int bdShift, int max_coeff_bits);
+void transform_idct_4x4_fallback(int32_t *dst, const int16_t *coeffs, int bdShift, int max_coeff_bits);
+void transform_idct_8x8_fallback(int32_t *dst, const int16_t *coeffs, int bdShift, int max_coeff_bits);
+void transform_idct_16x16_fallback(int32_t *dst, const int16_t *coeffs, int bdShift, int max_coeff_bits);
+void transform_idct_32x32_fallback(int32_t *dst, const int16_t *coeffs, int bdShift, int max_coeff_bits);
 
 #endif

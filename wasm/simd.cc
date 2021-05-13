@@ -23,15 +23,22 @@
 #include "wasm/simd-motion.h"
 
 void init_acceleration_functions_wasm(struct acceleration_functions *accel) {
+  // 51 -> 42
+#if 0
   accel->put_unweighted_pred_8 = ff_hevc_put_unweighted_pred_8_wasm;
-
   accel->put_weighted_pred_avg_8 = ff_hevc_put_weighted_pred_avg_8_wasm;
+#endif
 
+  // unused?
+#if 0
   accel->put_hevc_epel_8 = ff_hevc_put_hevc_epel_pixels_8_wasm;
   accel->put_hevc_epel_h_8 = ff_hevc_put_hevc_epel_h_8_wasm;
   accel->put_hevc_epel_v_8 = ff_hevc_put_hevc_epel_v_8_wasm;
   accel->put_hevc_epel_hv_8 = ff_hevc_put_hevc_epel_hv_8_wasm;
+#endif
 
+  // 51 -> 50.5
+#if 0
   accel->put_hevc_qpel_8[0][0] = ff_hevc_put_hevc_qpel_pixels_8_wasm;
   accel->put_hevc_qpel_8[0][1] = ff_hevc_put_hevc_qpel_v_1_8_wasm;
   accel->put_hevc_qpel_8[0][2] = ff_hevc_put_hevc_qpel_v_2_8_wasm;
@@ -48,16 +55,17 @@ void init_acceleration_functions_wasm(struct acceleration_functions *accel) {
   accel->put_hevc_qpel_8[3][1] = ff_hevc_put_hevc_qpel_h_3_v_1_wasm;
   accel->put_hevc_qpel_8[3][2] = ff_hevc_put_hevc_qpel_h_3_v_2_wasm;
   accel->put_hevc_qpel_8[3][3] = ff_hevc_put_hevc_qpel_h_3_v_3_wasm;
+#endif
 
+  // no change
+#if 0
   accel->transform_skip_8 = ff_hevc_transform_skip_8_wasm;
+#endif
 
-  // actually, for these two functions, the scalar fallback seems to be faster
-  // than the SSE code
-  //accel->transform_4x4_luma_add_8 = ff_hevc_transform_4x4_luma_add_8_wasm;
-  // SSE-4 only TODO
-  //accel->transform_4x4_add_8 = ff_hevc_transform_4x4_add_8_wasm;
-
+  // 51 -> 45 fps if disable
+#if 0
   accel->transform_add_8[1] = ff_hevc_transform_8x8_add_8_wasm;
   accel->transform_add_8[2] = ff_hevc_transform_16x16_add_8_wasm;
   accel->transform_add_8[3] = ff_hevc_transform_32x32_add_8_wasm;
+#endif
 }

@@ -25,22 +25,29 @@
 
 void init_acceleration_functions_fallback(struct acceleration_functions* accel)
 {
+#if 0
   accel->put_weighted_pred_avg_8 = put_weighted_pred_avg_8_fallback;
   accel->put_unweighted_pred_8   = put_unweighted_pred_8_fallback;
   accel->put_weighted_pred_8 = put_weighted_pred_8_fallback;
   accel->put_weighted_bipred_8 = put_weighted_bipred_8_fallback;
+#endif
 
+#if 0
   accel->put_weighted_pred_avg_16 = put_weighted_pred_avg_16_fallback;
   accel->put_unweighted_pred_16   = put_unweighted_pred_16_fallback;
   accel->put_weighted_pred_16 = put_weighted_pred_16_fallback;
   accel->put_weighted_bipred_16 = put_weighted_bipred_16_fallback;
+#endif
 
 
+#if 0
   accel->put_hevc_epel_8    = put_epel_8_fallback;
   accel->put_hevc_epel_h_8  = put_epel_hv_fallback<uint8_t>;
   accel->put_hevc_epel_v_8  = put_epel_hv_fallback<uint8_t>;
   accel->put_hevc_epel_hv_8 = put_epel_hv_fallback<uint8_t>;
+#endif
 
+#if 0
   accel->put_hevc_qpel_8[0][0] = put_qpel_0_0_fallback;
   accel->put_hevc_qpel_8[0][1] = put_qpel_0_1_fallback;
   accel->put_hevc_qpel_8[0][2] = put_qpel_0_2_fallback;
@@ -57,7 +64,9 @@ void init_acceleration_functions_fallback(struct acceleration_functions* accel)
   accel->put_hevc_qpel_8[3][1] = put_qpel_3_1_fallback;
   accel->put_hevc_qpel_8[3][2] = put_qpel_3_2_fallback;
   accel->put_hevc_qpel_8[3][3] = put_qpel_3_3_fallback;
+#endif
 
+#if 0
   accel->put_hevc_epel_16    = put_epel_16_fallback;
   accel->put_hevc_epel_h_16  = put_epel_hv_fallback<uint16_t>;
   accel->put_hevc_epel_v_16  = put_epel_hv_fallback<uint16_t>;
@@ -79,9 +88,11 @@ void init_acceleration_functions_fallback(struct acceleration_functions* accel)
   accel->put_hevc_qpel_16[3][1] = put_qpel_3_1_fallback_16;
   accel->put_hevc_qpel_16[3][2] = put_qpel_3_2_fallback_16;
   accel->put_hevc_qpel_16[3][3] = put_qpel_3_3_fallback_16;
+#endif
 
 
 
+#if 0
   accel->transform_skip_8 = transform_skip_8_fallback;
   accel->transform_skip_rdpcm_h_8 = transform_skip_rdpcm_h_8_fallback;
   accel->transform_skip_rdpcm_v_8 = transform_skip_rdpcm_v_8_fallback;
@@ -93,6 +104,7 @@ void init_acceleration_functions_fallback(struct acceleration_functions* accel)
   accel->transform_add_8[1] = transform_8x8_add_8_fallback;
   accel->transform_add_8[2] = transform_16x16_add_8_fallback;
   accel->transform_add_8[3] = transform_32x32_add_8_fallback;
+#endif
 
   accel->transform_skip_16 = transform_skip_16_fallback;
   accel->transform_4x4_dst_add_16 = transform_4x4_luma_add_16_fallback;
@@ -108,11 +120,13 @@ void init_acceleration_functions_fallback(struct acceleration_functions* accel)
   accel->rdpcm_v = rdpcm_v_fallback;
   accel->transform_skip_residual = transform_skip_residual_fallback;
 
+#if 0
   accel->transform_idst_4x4   = transform_idst_4x4_fallback;
   accel->transform_idct_4x4   = transform_idct_4x4_fallback;
   accel->transform_idct_8x8   = transform_idct_8x8_fallback;
   accel->transform_idct_16x16 = transform_idct_16x16_fallback;
   accel->transform_idct_32x32 = transform_idct_32x32_fallback;
+#endif
 
   accel->fwd_transform_4x4_dst_8 = fdst_4x4_8_fallback;
   accel->fwd_transform_8[0] = fdct_4x4_8_fallback;

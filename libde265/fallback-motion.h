@@ -24,6 +24,30 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define UNWEIGHTED_PRED_8 put_unweighted_pred_8_fallback
+#define WEIGHTED_PRED_AVG_8 put_weighted_pred_avg_8_fallback
+
+#define HEVC_EPEL_8    put_epel_8_fallback
+#define HEVC_EPEL_H_8  put_epel_hv_fallback<uint8_t>
+#define HEVC_EPEL_V_8  put_epel_hv_fallback<uint8_t>
+#define HEVC_EPEL_HV_8 put_epel_hv_fallback<uint8_t>
+
+#define PUT_QPEL_0_0_FALLBACK put_qpel_0_0_fallback
+#define PUT_QPEL_0_1_FALLBACK put_qpel_0_1_fallback
+#define PUT_QPEL_0_2_FALLBACK put_qpel_0_2_fallback
+#define PUT_QPEL_0_3_FALLBACK put_qpel_0_3_fallback
+#define PUT_QPEL_1_0_FALLBACK put_qpel_1_0_fallback
+#define PUT_QPEL_1_1_FALLBACK put_qpel_1_1_fallback
+#define PUT_QPEL_1_2_FALLBACK put_qpel_1_2_fallback
+#define PUT_QPEL_1_3_FALLBACK put_qpel_1_3_fallback
+#define PUT_QPEL_2_0_FALLBACK put_qpel_2_0_fallback
+#define PUT_QPEL_2_1_FALLBACK put_qpel_2_1_fallback
+#define PUT_QPEL_2_2_FALLBACK put_qpel_2_2_fallback
+#define PUT_QPEL_2_3_FALLBACK put_qpel_2_3_fallback
+#define PUT_QPEL_3_0_FALLBACK put_qpel_3_0_fallback
+#define PUT_QPEL_3_1_FALLBACK put_qpel_3_1_fallback
+#define PUT_QPEL_3_2_FALLBACK put_qpel_3_2_fallback
+#define PUT_QPEL_3_3_FALLBACK put_qpel_3_3_fallback
 
 void put_weighted_pred_avg_8_fallback(uint8_t *dst, ptrdiff_t dststride,
                                       const int16_t *src1, const int16_t *src2,

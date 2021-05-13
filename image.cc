@@ -20,20 +20,20 @@
 
 #include "image.h"
 #include "decctx.h"
+#include "en265.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
 #include <limits>
-#include "config.h"
 
 
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
-#ifdef HAVE_SSE4_1
+#if defined HAVE_SSE4_1 || defined WASM_SIMD
 // SSE code processes 128bit per iteration and thus might read more data
 // than is later actually used.
 #define MEMORY_PADDING  16

@@ -25,7 +25,7 @@
 #include <emmintrin.h>
 #include <stdio.h>
 #include <tmmintrin.h> // SSSE3
-#if HAVE_SSE4_1
+#if defined HAVE_SSE4_1 || defined WASM_SIMD
 #include <smmintrin.h>
 #endif
 
@@ -1980,7 +1980,7 @@ void ff_hevc_put_hevc_qpel_pixels_8_wasm(int16_t *dst, ptrdiff_t dststride,
     }
   } else {
 #if MASKMOVE
-    __m128i x4 = _mm_set_epi32(0, 0, 0, -1); // mask to store
+    x4 = _mm_set_epi32(0, 0, 0, -1); // mask to store
 #endif
     for (y = 0; y < height; y++) {
       for (x = 0; x < width; x += 2) {
