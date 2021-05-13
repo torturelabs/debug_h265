@@ -1,10 +1,15 @@
 #include <assert.h>
+#include <fcntl.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #ifdef HAVE_SDL2
@@ -13,8 +18,44 @@
 
 #include <libde265/de265.h>
 
+#define handle_error(msg)                                                      \
+  do {                                                                         \
+    perror(msg);                                                               \
+    exit(EXIT_FAILURE);                                                        \
+  } while (0)
+
 #define xstr(a) str(a)
 #define str(a) #a
+
+void DumpHex(const void *data, size_t size) {
+  char ascii[17];
+  size_t i, j;
+  ascii[16] = '\0';
+  for (i = 0; i < size; ++i) {
+    printf("%02X ", ((unsigned char *)data)[i]);
+    if (((unsigned char *)data)[i] >= ' ' &&
+        ((unsigned char *)data)[i] <= '~') {
+      ascii[i % 16] = ((unsigned char *)data)[i];
+    } else {
+      ascii[i % 16] = '.';
+    }
+    if ((i + 1) % 8 == 0 || i + 1 == size) {
+      printf(" ");
+      if ((i + 1) % 16 == 0) {
+        printf("|  %s \n", ascii);
+      } else if (i + 1 == size) {
+        ascii[(i + 1) % 16] = '\0';
+        if ((i + 1) % 16 <= 8) {
+          printf(" ");
+        }
+        for (j = (i + 1) % 16; j < 16; ++j) {
+          printf("   ");
+        }
+        printf("|  %s \n", ascii);
+      }
+    }
+  }
+}
 
 void check_err_de265(de265_error err) {
   if (err == DE265_OK)
@@ -37,6 +78,30 @@ int frames[10];
 uint8_t *frbuf[10];
 
 enum frame_statuses { FRAME_NOT_ALLOCATED = 0, FRAME_EMPTY, FRAME_BUSY };
+
+const char *find_nal(const char *ptr, const char *end) {
+  const char *res = NULL;
+
+  while (ptr < end) {
+    if (ptr + 4 >= end)
+      break;
+    if (ptr[0] == 0) {
+      if (ptr[1] == 0) {
+        if (ptr[2] == 0) {
+          if (ptr[3] == 1) {
+            return ptr + 4;
+          } else
+            ptr += 3;
+        } else
+          ptr += 2;
+      } else
+        ptr += 1;
+    }
+
+    ptr++;
+  }
+  return NULL;
+}
 
 int custom_libde265_dec_get_buffer(de265_decoder_context *ctx,
                                    struct de265_image_spec *spec,
@@ -254,14 +319,19 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef H265_FILENAME
-  FILE *f = fopen(xstr(H265_FILENAME), "rb");
+  int fd = open(xstr(H265_FILENAME), O_RDONLY);
 #else
-  FILE *f = fopen(global_args.input_files[0], "rb");
+  int fd = open(global_args.input_files[0], O_RDONLY);
 #endif
-  if (f == NULL) {
+  if (fd < 0) {
     printf("Could not open %s file\n", global_args.input_files[0]);
     exit(EXIT_FAILURE);
   }
+    struct stat sb;
+  fstat(fd, &sb);
+  const char *memblock = mmap(NULL, sb.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+  if (memblock == MAP_FAILED)
+    handle_error("mmap");
 
 #ifdef HAVE_SDL2
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)) {
@@ -270,30 +340,20 @@ int main(int argc, char **argv) {
   }
 #endif
 
-  char buf[65000];
   int nlen = 0, imgcnt = 0;
 
-  int iteration = 0;
+  const char *end = memblock + sb.st_size;
+  const char *next = find_nal(memblock, end);
+  int i = 0;
+  while (next) {
+    const char *nal = next;
+    next = find_nal(next, end);
+    size_t len = next ? next - nal : end - nal;
+#if 0
+    printf("[%d] len = %ld ", i++, len);
+    DumpHex(nal, 16);
+#endif
 
-  while (true) {
-    if (feof(f)) {
-      iteration++;
-      if (iteration == 1) {
-        // end of warmup phase
-        gettimeofday(&start, NULL);
-        etv = start;
-        imgcnt = 0;
-      } else if (iteration == 11)
-        break;
-
-      rewind(f);
-    }
-
-    int len = fread(buf, 1, sizeof(buf), f);
-    if (!len && ferror(f)) {
-      perror("Error while file reading");
-      exit(EXIT_FAILURE);
-    }
     nlen += len;
 
     // This pushes len bytes of buf into the decoder.
@@ -303,7 +363,7 @@ int main(int argc, char **argv) {
     // decoded image decoded from this data for your use:
     // pts is not provided
     // user_data is not used
-    err = de265_push_data(ctx, buf, len, 0, NULL);
+    err = de265_push_NAL(ctx, nal, len, 0, NULL);
     check_err_de265(err);
 
     int more = 0;
@@ -441,7 +501,7 @@ int main(int argc, char **argv) {
   err = de265_flush_data(ctx);
   check_err_de265(err);
 
-  fclose(f);
+  close(fd);
 
   //  Hence, this function must be called. When the decoder is not needed any
   //  more, the decoder context must be freed again after use by
