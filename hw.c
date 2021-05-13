@@ -90,12 +90,12 @@ const char *find_nal(const char *ptr, const char *end) {
         if (ptr[2] == 0) {
           if (ptr[3] == 1) {
             return ptr + 4;
-          } else
-            ptr += 3;
-        } else
-          ptr += 2;
-      } else
-        ptr += 1;
+          } // else
+          // ptr += 3;
+        } // else
+          // ptr += 2;
+      }   // else
+          // ptr += 1;
     }
 
     ptr++;
@@ -327,7 +327,7 @@ int main(int argc, char **argv) {
     printf("Could not open %s file\n", global_args.input_files[0]);
     exit(EXIT_FAILURE);
   }
-    struct stat sb;
+  struct stat sb;
   fstat(fd, &sb);
   const char *memblock = mmap(NULL, sb.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
   if (memblock == MAP_FAILED)
@@ -344,9 +344,24 @@ int main(int argc, char **argv) {
 
   const char *end = memblock + sb.st_size;
   const char *next = find_nal(memblock, end);
+  const char *nal;
   int i = 0;
-  while (next) {
-    const char *nal = next;
+  int iteration = 0;
+  while (true) {
+    if (!next) {
+      iteration++;
+      if (iteration == 1) {
+        // end of warmup phase
+        gettimeofday(&start, NULL);
+        etv = start;
+        imgcnt = 0;
+      } else if (iteration == 11)
+        break;
+
+      next = find_nal(memblock, end);
+    }
+
+    nal = next;
     next = find_nal(next, end);
     size_t len = next ? next - nal : end - nal;
 #if 0
